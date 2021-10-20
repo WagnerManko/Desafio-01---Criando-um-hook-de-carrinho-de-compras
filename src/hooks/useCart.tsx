@@ -34,32 +34,19 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const addProduct = async (productId: number) => {
     try {
+      //TODO
       const existProduct = cart.find(item => item.id === productId);
-      console.log(existProduct);
-
-      if(!existProduct) {
-        const { data } = await api.get(`/products/${productId}`);
-
-        const product = {...data, amount: 1}
-
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(product));
-        setCart([...cart, product]);
-      }
 
       if(existProduct) {
-        const attProduct = {
-          ...existProduct,
-          amount: existProduct.amount + 1
-        };
-        
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(attProduct));
-        setCart([...cart, attProduct]);
-        //const amount = existProduct.amount;
-        //updateProductAmount({productId, amount});
+        const amount = existProduct.amount;
+        await updateProductAmount({productId, amount});
+      } else {
+        await updateProductAmount({productId, amount: 0});
       }
-      // TODO
+
     } catch {
       //TODO
+      toast.error('Erro na adição do produto');
     }
   };
 
@@ -68,6 +55,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       // TODO
     } catch {
       // TODO
+      toast.error('Erro na adição do produto');
     }
   };
 
@@ -77,9 +65,21 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   }: UpdateProductAmount) => {
     try {
       // TODO
-      console.log('updateProductAmount:', productId, amount);
+      const stock = await api.get(`/stock/${productId}`);
+
+      if(stock.data.amount < 1) {
+        toast.error('Quantidade solicitada fora de estoque');
+      }
+
+      const { data } = await api.get(`/products/${productId}`);
+
+      const product = {...data, amount: amount + 1};
+
+      setCart([...cart, product]);
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart));
     } catch {
       // TODO
+      toast.error('Erro na adição do produto');
     }
   };
 
