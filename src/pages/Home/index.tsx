@@ -32,7 +32,7 @@ const Home = (): JSX.Element => {
   useEffect(() => {
     async function loadProducts() {
       const products = await api.get('/products');
-
+      console.log(cart);
       setProducts(products.data);
     }
 
