@@ -36,6 +36,7 @@ const Home = (): JSX.Element => {
     async function loadProducts() {
       const products = await api.get('/products');
       setProducts(products.data);
+      console.log(cart);
     }
 
     loadProducts();
